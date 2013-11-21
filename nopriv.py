@@ -787,8 +787,15 @@ def backup_mails_to_html_from_local_maildir(folder):
 
         mail = sorted_maildir[number]
         mail_for_page = sorted_maildir[number]
-        mail_subject = decode_header(mail.get('Subject'))[0][0]
-        mail_subject_encoding = decode_header(mail.get('Subject'))[0][1]
+        try:
+            mail_subject = None
+            mail_subject_encoding = None
+            mail_subject = decode_header(mail.get('Subject'))[0][0]
+            mail_subject_encoding = decode_header(mail.get('Subject'))[0][1]
+        except email.errors.HeaderParseError as e:
+            print("ERR Bad header in Subject: %s" % mail.get('Subject'))
+            mail_subject = "cant_decode: %s" % mail.get('Subject')
+
         if not mail_subject_encoding:
             mail_subject_encoding = "utf-8"
 
@@ -807,7 +814,7 @@ def backup_mails_to_html_from_local_maildir(folder):
             mail_to_encoding = "utf-8"
 
         mail_date = decode_header(mail.get('Date'))[0][0]
-        
+
         addMailToOverviewPage(folder, current_page_number, mail_number, 
                               mail_from, mail_to, mail_subject, mail_date, 
                               mail_from_encoding = mail_from_encoding, 
@@ -823,7 +830,6 @@ def backup_mails_to_html_from_local_maildir(folder):
                        mail_from_encoding = mail_from_encoding, 
                        mail_to_encoding = mail_to_encoding,
                        mail_subject_encoding = mail_subject_encoding)
-  
 
     ## Finish the overview page
     for number in reversed(range(number_of_overview_pages)):
