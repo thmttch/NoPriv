@@ -61,6 +61,7 @@ if found == False:
 IMAPSERVER = config.get('nopriv', 'imap_server')
 IMAPLOGIN = config.get('nopriv', 'imap_user')
 IMAPPASSWORD = config.get('nopriv', 'imap_password')
+DATADIR = config.get('nopriv', 'data_dir')
 
 if IMAPPASSWORD == "":
     IMAPPASSWORD = getpass.getpass()
@@ -109,7 +110,7 @@ def connectToImapMailbox(IMAPSERVER, IMAPLOGIN, IMAPPASSWORD):
     mail.login(IMAPLOGIN, IMAPPASSWORD)
     return mail
 
-maildir = 'NoPrivMaildir'
+maildir = os.path.join(DATADIR, 'NoPrivMaildir')
 
 def returnHeader(title, inclocation=inc_location):
     response = """
