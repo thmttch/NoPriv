@@ -44,6 +44,8 @@ config_file_paths = [
     '/opt/local/etc/nopriv.ini',
     '/etc/nopriv.ini'
 ]
+if len(sys.argv) == 2:
+    config_file_paths.insert(0, sys.argv[1])
 
 config = ConfigParser.RawConfigParser()
 found = False
@@ -186,6 +188,8 @@ def saveToMaildir(msg, mailFolder):
         mbox.close()
 
 def saveMostRecentMailID(mail_id, email_address, folder, filename = "nopriv.txt"):
+    filename = DATADIR + '/' + filename
+
     match = False
     for line in fileinput.input(filename, inplace = 1): 
         if line.split(":")[0] == folder and line.split(":")[1] == email_address and len(line) > 3:
@@ -202,6 +206,8 @@ def saveMostRecentMailID(mail_id, email_address, folder, filename = "nopriv.txt"
 
 
 def getLastMailID(folder, email_address, filename = "nopriv.txt"):
+    filename = DATADIR + '/' + filename
+
     if not os.path.exists(filename):
         with open(os.path.join(filename), 'w') as progress_file:
             progress_file.write(folder + ":" + email_address + ":1")
@@ -259,10 +265,11 @@ def returnIndexPage():
     global IMAPFOLDER
     global IMAPLOGIN
     global IMAPSERVER
+    global DATADIR
     global ssl
     global offline
     now = datetime.datetime.now()
-    with open("index.html", "w") as indexFile:
+    with open(DATADIR + '/' + "index.html", "w") as indexFile:
         indexFile.write(returnHeader("Email Backup Overview Page"))
         indexFile.write("<div class=\"col-md-3 col-md-offset-1\">\n")
         indexFile.write("<h3>Folders</h3>\n")
@@ -423,6 +430,7 @@ def returnWelcome():
 
 
 def createOverviewPage(folder, pagenumber, amountOfItems = 50):
+    folder = DATADIR + '/' + folder
     if not os.path.exists(folder):
         os.makedirs(folder)
     overview_page_name = "email-report-" + str(pagenumber) + ".html"
@@ -450,6 +458,8 @@ def addMailToOverviewPage(folder, pagenumber, mail_id, mail_from,
                           mail_from_encoding = "utf-8", mail_to_encoding = "utf-8",
                           mail_subject_encoding = "utf-8", 
                           attachment = False, emptyFolder = False):
+    folder = DATADIR + '/' + folder
+
     try:
         mail_subject = cgi.escape(unicode(mail_subject, mail_subject_encoding)).encode('ascii', 'xmlcharrefreplace')
         mail_to = cgi.escape(unicode(mail_to, mail_to_encoding)).encode('ascii', 'xmlcharrefreplace')
@@ -489,6 +499,8 @@ def addMailToOverviewPage(folder, pagenumber, mail_id, mail_from,
         overview_file.close()
 
 def finishOverviewPage(folder, pagenumber, previouspage, nextpage, total_messages_in_folder):
+    folder = DATADIR + '/' + folder
+
     overview_page_name = "email-report-" + str(pagenumber) + ".html"
     overview_file_path = os.path.join(folder, overview_page_name)
     with open(overview_file_path, "a") as overview_file:
@@ -528,6 +540,7 @@ def createMailPage(folder, mail_id, mail_for_page, current_page_number,
                        mail_to_encoding = "utf-8",
                        mail_subject_encoding = "utf-8"):
 
+    folder = DATADIR + '/' + folder
     mail = mail_for_page
 
     try:
@@ -649,6 +662,8 @@ def createMailPage(folder, mail_id, mail_for_page, current_page_number,
         mail_page.close()        
 
 def save_mail_attachments_to_folders(mail_id, mail, local_folder, folder):
+
+    folder = DATADIR + '/' + folder
 
     global att_count
     global last_att_filename
@@ -889,7 +904,7 @@ if not offline:
 for folder in IMAPFOLDER:
     print(("Processing folder: %s.") % folder)
     remove(folder + "/inc")
-    copy(inc_location, folder + "/inc/")
+    copy(inc_location, DATADIR + '/' + folder + "/inc/")
     backup_mails_to_html_from_local_maildir(folder)
     print(("Done with folder: %s.") % folder)
     print("\n")    
