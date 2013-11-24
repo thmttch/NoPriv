@@ -903,11 +903,15 @@ if not offline:
 
 for folder in IMAPFOLDER:
     print(("Processing folder: %s.") % folder)
+    # TODO need to add DATADIR here?
     remove(folder + "/inc")
     copy(inc_location, DATADIR + '/' + folder + "/inc/")
     backup_mails_to_html_from_local_maildir(folder)
     print(("Done with folder: %s.") % folder)
     print("\n")    
-        
+
+if not os.path.exists(DATADIR + '/inc'):
+    copy(inc_location, DATADIR)
+
 if not incremental_backup:
     moveMailDir(maildir)
