@@ -911,7 +911,7 @@ for folder in IMAPFOLDER:
     print("\n")    
 
 if not os.path.exists(DATADIR + '/inc'):
-    copy(inc_location, DATADIR)
+    copy(inc_location, DATADIR + '/inc')
 
 if not incremental_backup:
     moveMailDir(maildir)
