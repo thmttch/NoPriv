@@ -667,7 +667,7 @@ def save_mail_attachments_to_folders(mail_id, mail, local_folder, folder):
 
     global att_count
     global last_att_filename
-    returnTrue = False
+    hasAttachment = False
 
     try:
         att_date = str(time.strftime("%Y/%m/", email.utils.parsedate(mail['Date'])))
@@ -728,16 +728,17 @@ def save_mail_attachments_to_folders(mail_id, mail, local_folder, folder):
         with open(att_dir + "/index.html", "a") as att_dir_index:
             att_dir_index.write("<li><a href=\"" + str(att_filename) + "\">" + str(att_filename) + "</a></li>\n")
             att_dir_index.close()
-            returnTrue = True
-    
-    with open(os.path.join(folder, att_date, str(mail_id), "attachments/index.html"), "a") as att_index_file:
-        att_index_file.write("</ul>")
-        att_index_file.write(returnFooter())
-        att_index_file.close()
-        if returnTrue:
-            return True
-        else:
-            return False          
+            hasAttachment = True
+
+    try:
+        with open(os.path.join(folder, att_date, str(mail_id), "attachments/index.html"), "a") as att_index_file:
+            att_index_file.write("</ul>")
+            att_index_file.write(returnFooter())
+            att_index_file.close()
+    except Exception as e:
+        print("Error writing close on attachment index file: " + str(e) + ".\n")
+
+    return hasAttachment
 
 def extract_date(email):
     date = email.get('Date')
