@@ -705,17 +705,20 @@ def save_mail_attachments_to_folders(mail_id, mail, local_folder, folder):
         else:
             att_filename = re.sub(r'[^.a-zA-Z0-9 :;,\.\?]', "_", decoded_filename.replace(":", "").replace("/", "").replace("\\", ""))
 
+        # filename can't be empty
+        if len(att_filename.trim()) == 0:
+            att_filename = "unamed-attachement"
+
         if last_att_filename == att_filename:
             att_filename = str(att_count) + "." + att_filename
-        
+
         last_att_filename = att_filename
         att_count += 1
-            
+
 
         att_path = os.path.join(folder, att_date, str(mail_id), "attachments", att_filename)
         att_dir = os.path.join(folder, att_date, str(mail_id), "attachments")
 
-        att_locs = []
         with open(att_path, 'wb') as att_file:
             try:
                 att_file.write(part.get_payload(decode=True))
@@ -730,13 +733,10 @@ def save_mail_attachments_to_folders(mail_id, mail, local_folder, folder):
             att_dir_index.close()
             hasAttachment = True
 
-    try:
-        with open(os.path.join(folder, att_date, str(mail_id), "attachments/index.html"), "a") as att_index_file:
-            att_index_file.write("</ul>")
-            att_index_file.write(returnFooter())
-            att_index_file.close()
-    except Exception as e:
-        print("Error writing close on attachment index file: " + str(e) + ".\n")
+    with open(os.path.join(folder, att_date, str(mail_id), "attachments/index.html"), "a") as att_index_file:
+        att_index_file.write("</ul>")
+        att_index_file.write(returnFooter())
+        att_index_file.close()
 
     return hasAttachment
 
@@ -839,6 +839,7 @@ def backup_mails_to_html_from_local_maildir(folder):
                               mail_subject_encoding = mail_subject_encoding,
                             )  
 
+        print("Checking for attachments. mail_number = mail_id = %s" % mail_number)
         mail_has_attachment = save_mail_attachments_to_folders(mail_number, mail_for_page, folder, folder)
 
         createMailPage(folder, mail_number, mail_for_page, current_page_number,
